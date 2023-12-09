@@ -4,5 +4,8 @@ from .activation import Activation
 from .reshape import Reshape
 from .dropout import Dropout
 from .conv import Conv
+from .convtranspose import ConvTranspose
 from .flatten import Flatten
 from .batch_normalization import BatchNormalization
+from .denseresblock import DenseResBlock
+from .convresblock import ConvResBlock
