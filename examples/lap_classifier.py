@@ -89,10 +89,6 @@ through the convolutional residual blocks
 lap_classifier = create_model([
     ConvResBlock((3,3), input_shape=(n,n,1), output_shape=(n,n,1)),
     ConvResBlock((3,3), input_shape=(n,n,1), output_shape=(n,n,1)),
-    # ConvResBlock((3,3), input_shape=(n,n,1), output_shape=(n,n,1)),
-    # ConvResBlock((3,3), input_shape=(n,n,1), output_shape=(n,n,1)),
-    # ConvResBlock((3,3), input_shape=(4,4,1), output_shape=(4,4,1)),
-    # ConvResBlock((3,3), input_shape=(4,4,1), output_shape=(4,4,1)),
     Reshape((1,n**2)),
     Dense(128),
     Tanh(),
@@ -102,50 +98,41 @@ lap_classifier = create_model([
 mse = MSE()
 
 x_train, y_train, x_test, y_test = load_data(1000)
-lmbda = 100
+lmbda = 15
 print('error here includes some measure of average transport costs')
 train(lap_classifier, mse, encoded_train, y_train, epochs=15, lmbda=lmbda)
 # print('error on test set:', test(lap_classifier, mse, encoded_test, y_test))
 
-f, ax = plt.subplots(5, 6)
+
+
+f, ax = plt.subplots(5, 4)
 for i in range(5):
     code = forward(encoder, x_test[i])[0]
     # reconstructed = forward(decoder, code)[0]
-    block1 = -1*forward(lap_classifier[:1], code)[0]
-    block2 = -1*forward(lap_classifier[:2], code)[0]
-    # block3 = -1*forward(lap_classifier[:3], code)[0]
-    # block4 = -1*forward(lap_classifier[:4], code)[0]
-    # reconstructed6 = forward(model2[:5], code)[0]
+    block1 = forward(lap_classifier[:1], code)[0]
+    block2 = forward(lap_classifier[:2], code)[0]
     ax[i][0].imshow(x_test[i], cmap='gray')
     ax[i][1].imshow(code[:,:,0], cmap='gray')
     ax[i][2].imshow(block1[:,:,0], cmap='gray')
     ax[i][3].imshow(block2[:,:,0], cmap='gray')
-    # ax[i][4].imshow(block3[:,:,0], cmap='gray')
-    # ax[i][5].imshow(block4[:,:,0], cmap='gray')
 
 plt.show()
 
 
-f, ax = plt.subplots(5, 7)
+f, ax = plt.subplots(5, 5)
 for i in range(5):
     code = forward(encoder, x_test[i])[0]
-    block1 = -1*forward(lap_classifier[:1], code)[0]
-    block2 = -1*forward(lap_classifier[:2], code)[0]
-    block3 = -1*forward(lap_classifier[:3], code)[0]
-    block4 = -1*forward(lap_classifier[:4], code)[0]
+    block1 = forward(lap_classifier[:1], code)[0]
+    block2 = forward(lap_classifier[:2], code)[0]
     reconstructed1 = forward(decoder, code)[0]
     reconstructed2 = forward(decoder, block1)[0]
     reconstructed3 = forward(decoder, block2)[0]
-    # reconstructed4 = forward(decoder, block3)[0]
-    # reconstructed5 = forward(decoder, block4)[0]
     # reconstructed6 = forward(decoder, forward(model2[:5], code1)[0].reshape(1,16))[0]
     ax[i][0].imshow(x_test[i], cmap='gray')
     ax[i][1].imshow(code[:,:,0], cmap='gray')
     ax[i][2].imshow(reconstructed1[:,:,0], cmap='gray')
     ax[i][3].imshow(reconstructed2[:,:,0], cmap='gray')
     ax[i][4].imshow(reconstructed3[:,:,0], cmap='gray')
-    # ax[i][5].imshow(reconstructed4[:,:,0], cmap='gray')
-    # ax[i][6].imshow(reconstructed5[:,:,0], cmap='gray')
 
 plt.show()
 
@@ -159,4 +146,4 @@ for x, y in zip(encoded_test, y_test):
 error /= len(x_test)
 transports /= len(x_test)
 
-print('classificatin error = %f, average transport cost across residual blocks = %f ' % (error, transports/lmbda))
+print('classification error = %f, average transport cost across residual blocks = %f ' % (error, transports/lmbda))
